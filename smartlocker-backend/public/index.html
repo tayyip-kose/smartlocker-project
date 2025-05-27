@@ -43,7 +43,7 @@
         row.innerHTML = `
           <td>${block.block_code}</td>
           <td><input type="number" value="${block.price}" id="price-${block.id}"></td>
-          <td><input type="number" value="${block.stock}" id="stock-${block.id}" readonly></td>
+          <td><input type="number" value="${block.stock}" id="stock-${block.id}"></td>
           <td>
             <select id="avail-${block.id}">
               <option value="true" ${block.is_available ? 'selected' : ''}>Yes</option>
@@ -62,11 +62,12 @@
     async function updateBlock(id) {
       const price = parseFloat(document.getElementById(`price-${id}`).value);
       const is_available = document.getElementById(`avail-${id}`).value === 'true';
+      const stock = parseInt(document.getElementById(`stock-${id}`).value);
 
       const res = await fetch(`${api}/blocks/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ price, is_available })
+        body: JSON.stringify({ price, is_available, stock })
       });
 
       const result = await res.json();

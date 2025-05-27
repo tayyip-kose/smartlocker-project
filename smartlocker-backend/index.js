@@ -16,11 +16,11 @@ app.get('/blocks', async (req, res) => {
 });
 
 app.patch('/blocks/:id', async (req, res) => {
-  const { price, is_available } = req.body;
+  const { price, is_available, stock } = req.body;
   const { id } = req.params;
   const { data, error } = await supabase
     .from('blocks')
-    .update({ price, is_available })
+    .update({ price, is_available, stock })
     .eq('id', id);
   if (error) return res.status(500).json({ error });
   res.json(data);
