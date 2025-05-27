@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SmartLocker Admin Panel</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 30px auto; }
+    h1 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    button { padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <h1>SmartLocker Admin Panel</h1>
+  <table id="block-table">
+    <thead>
+      <tr>
+        <th>Block</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Available</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const api = 'http://localhost:3000';
+
+    async function loadBlocks() {
+      const res = await fetch(`${api}/blocks`);
+      const data = await res.json();
+
+      const tbody = document.querySelector('#block-table tbody');
+      tbody.innerHTML = '';
+
+      data.forEach(block => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${block.block_code}</td>
+          <td><input type="number" value="${block.price}" id="price-${block.id}"></td>
+          <td><input type="number" value="${block.stock}" id="stock-${block.id}" readonly></td>
+          <td>
+            <select id="avail-${block.id}">
+              <option value="true" ${block.is_available ? 'selected' : ''}>Yes</option>
+              <option value="false" ${!block.is_available ? 'selected' : ''}>No</option>
+            </select>
+          </td>
+          <td>
+            <button onclick="updateBlock(${block.id})">Update</button>
+            <button onclick="makeSale(${block.id}, ${block.price})">Sale</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    async function updateBlock(id) {
+      const price = parseFloat(document.getElementById(`price-${id}`).value);
+      const is_available = document.getElementById(`avail-${id}`).value === 'true';
+
+      const res = await fetch(`${api}/blocks/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ price, is_available })
+      });
+
+      const result = await res.json();
+      alert('Block updated successfully!');
+      loadBlocks();
+    }
+
+    async function makeSale(id, amount) {
+      const confirmSale = confirm(`Blok ${id} için ₺${amount} tutarında satış yapılacak. Onaylıyor musun?`);
+      if (!confirmSale) return;
+
+      const res = await fetch(`${api}/sales`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ block_id: id, amount })
+      });
+
+      const result = await res.json();
+      alert('Satış başarıyla kaydedildi!');
+      loadBlocks();
+    }
+
+    loadBlocks();
+  </script>
+</body>
+</html>
