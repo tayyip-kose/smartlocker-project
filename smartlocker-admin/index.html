@@ -52,7 +52,7 @@
           </td>
           <td>
             <button onclick="updateBlock(${block.id})">Update</button>
-            <button onclick="makeSale(${block.id}, ${block.price})">Sale</button>
+            <button onclick="makeSale(${block.id}, ${block.price})" ${!block.is_available ? 'disabled' : ''}>Sale</button>
           </td>
         `;
         tbody.appendChild(row);
@@ -75,6 +75,12 @@
     }
 
     async function makeSale(id, amount) {
+      const stock = parseInt(document.getElementById(`stock-${id}`).value);
+      if (stock <= 0) {
+        alert('Bu blokta ürün kalmadı, satış yapamazsınız.');
+        return;
+      }
+
       const confirmSale = confirm(`Blok ${id} için ₺${amount} tutarında satış yapılacak. Onaylıyor musun?`);
       if (!confirmSale) return;
 
@@ -88,6 +94,7 @@
       alert('Satış başarıyla kaydedildi!');
       loadBlocks();
     }
+
 
     loadBlocks();
   </script>
