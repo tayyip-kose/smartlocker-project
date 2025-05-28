@@ -23,6 +23,7 @@ app.get('/sales/latest', async (req, res) => {
   if (!data) return res.status(404).json({ error: 'No sales found' });
 
   res.json({
+    id: data.id, // Benzersiz satış ID’si
     block_code: data.blocks.block_code,
     amount: data.amount,
     timestamp: data.created_at,
