@@ -9,6 +9,26 @@ app.use(express.static('public'));
 app.use(cors());
 app.use(express.json());
 
+
+app.get('/sales/latest', async (req, res) => {
+  const { data, error } = await supabase
+    .from('sales')
+    .select('id, block_id, amount, created_at, blocks(block_code)')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) return res.status(500).json({ error });
+
+  if (!data) return res.status(404).json({ error: 'No sales found' });
+
+  res.json({
+    block_code: data.blocks.block_code,
+    amount: data.amount,
+    timestamp: data.created_at,
+  });
+});
+
 app.get('/blocks', async (req, res) => {
   const { data, error } = await supabase.from('blocks').select('*');
   if (error) return res.status(500).json({ error });
